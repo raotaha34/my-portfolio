@@ -14,6 +14,8 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
     rel="stylesheet" />
+    <!-- jQuery CDN -->
+ <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <!-- Email library -->
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 
@@ -1393,129 +1395,117 @@
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // EMAILJS INIT 
 
-  <script>
-    emailjs.init("hnD6svOG9ul9LoBqK");
+  emailjs.init("hnD6svOG9ul9LoBqK");
 
-    document.getElementById("fSub").addEventListener("click", function (e) {
+  // CONTACT FORM (jQuery version)
+  $("#fSub").on("click", function (e) {
+    e.preventDefault();
+
+    const btn = $(this);
+    const msgBox = $("#fMsg");
+
+    const data = {
+      first_name: $("#fn").val().trim(),
+      last_name: $("#ln").val().trim(),
+      email: $("#fe").val().trim(),
+      phone: $("#fp").val().trim(),
+      message: $("#fb2").val().trim()
+    };
+
+    if (!data.first_name || !data.email || !data.message) {
+      msgBox.show().css("color", "red").text("❌ Please fill all required fields.");
+      return;
+    }
+
+    btn.prop("disabled", true).find("span").text("Sending...");
+
+    emailjs.send("service_0vyg0cj", "template_3fdrhag", data)
+      .then(function () {
+        msgBox.show().css("color", "var(--accent)").text("✅ Message sent successfully!");
+
+        $("#fn, #ln, #fe, #fp, #fb2").val("");
+
+        btn.prop("disabled", false).find("span").text("Send Message & Get Free Audit");
+      })
+      .catch(function () {
+        msgBox.show().css("color", "red").text("❌ Failed to send. Try again.");
+        btn.prop("disabled", false).find("span").text("Send Message & Get Free Audit");
+      });
+  });
+
+  // SMOOTH SCROLL (jQuery)
+  $(".nav-link").on("click", function (e) {
+    if (this.hash !== "") {
       e.preventDefault();
-      const btn = this, msgBox = document.getElementById("fMsg");
-      const data = { first_name: document.getElementById("fn").value.trim(), last_name: document.getElementById("ln").value.trim(), email: document.getElementById("fe").value.trim(), phone: document.getElementById("fp").value.trim(), message: document.getElementById("fb2").value.trim() };
-      if (!data.first_name || !data.email || !data.message) { msgBox.style.display = "block"; msgBox.style.color = "red"; msgBox.textContent = "❌ Please fill all required fields."; return; }
-      btn.disabled = true; btn.querySelector("span").textContent = "Sending...";
-      emailjs.send("service_0vyg0cj", "template_3fdrhag", data)
-        .then(() => { msgBox.style.display = "block"; msgBox.style.color = "var(--accent)"; msgBox.textContent = "✅ Message sent successfully!";["fn", "ln", "fe", "fp"].forEach(id => document.getElementById(id).value = ''); document.getElementById("fb2").value = ''; btn.disabled = false; btn.querySelector("span").textContent = "Send Message & Get Free Audit"; })
-        .catch(() => { msgBox.style.display = "block"; msgBox.style.color = "red"; msgBox.textContent = "❌ Failed to send. Try again."; btn.disabled = false; btn.querySelector("span").textContent = "Send Message & Get Free Audit"; });
+
+      const target = this.hash;
+
+      $("html, body").animate({
+        scrollTop: $(target).offset().top - 80
+      }, 600);
+    }
+  });
+
+  // ACTIVE NAVBAR LINK (jQuery)
+  $(window).on("scroll", function () {
+    let scrollPos = $(document).scrollTop();
+
+    $("section").each(function () {
+      let sectionTop = $(this).offset().top - 120;
+      let sectionBottom = sectionTop + $(this).outerHeight();
+
+      if (scrollPos >= sectionTop && scrollPos < sectionBottom) {
+        let id = $(this).attr("id");
+
+        $(".nav-link").removeClass("active");
+        $(".nav-link[href='#" + id + "']").addClass("active");
+      }
     });
-  </script>
+  });
 
-  <script>
-    // ── Active Navigation State ──
-    document.addEventListener('DOMContentLoaded', function () {
-      const navLinks = document.querySelectorAll('.nav-link');
+  // REVEAL ON SCROLL (jQuery version)
+  function revealOnScroll() {
+    $(".reveal").each(function () {
+      let elementTop = $(this).offset().top;
+      let windowBottom = $(window).scrollTop() + $(window).height();
 
-      navLinks.forEach(link => {
-        link.addEventListener('click', function () {
-          // Remove active class from all links
-          navLinks.forEach(l => l.classList.remove('active'));
-          // Add active class to clicked link
-          this.classList.add('active');
+      if (windowBottom > elementTop + 100) {
+        $(this).addClass("visible");
+      }
+    });
+  }
+
+  $(window).on("scroll load", revealOnScroll);
+
+  // SKILL BAR ANIMATION (jQuery)
+  function animateSkills() {
+    $(".skill-card").each(function () {
+      let elementTop = $(this).offset().top;
+      let windowBottom = $(window).scrollTop() + $(window).height();
+
+      if (windowBottom > elementTop + 100) {
+        $(this).find(".skill-bar-fill").each(function () {
+          $(this).css("width", $(this).data("width") + "%");
         });
-      });
-
-      // Set active link based on current section
-      const sections = document.querySelectorAll('section[id]');
-      const observerOptions = {
-        threshold: 0.5
-      };
-
-      const sectionObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const currentSection = entry.target;
-            const currentId = currentSection.getAttribute('id');
-
-            navLinks.forEach(link => {
-              link.classList.remove('active');
-              if (link.getAttribute('href') === `#${currentId}`) {
-                link.classList.add('active');
-              }
-            });
-          }
-        });
-      }, observerOptions);
-
-      sections.forEach(section => {
-        sectionObserver.observe(section);
-      });
+      }
     });
+  }
 
-    // ── IntersectionObserver: Reveal on scroll ──
-    const io = new IntersectionObserver(entries =>
-      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
-      { threshold: 0.12 }
-    );
-    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+  $(window).on("scroll load", animateSkills);
 
-    // ── Skill bar fill on reveal ──
-    const skillIo = new IntersectionObserver(entries =>
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          const fill = e.target.querySelector('.skill-bar-fill');
-          if (fill) fill.style.width = fill.dataset.width + '%';
-        }
-      }), { threshold: 0.3 }
-    );
-    document.querySelectorAll('.skill-card').forEach(c => skillIo.observe(c));
-
-    // ── Spotlight card mouse effect ──
-    document.querySelectorAll('.spotlight-card').forEach(card => {
-      card.addEventListener('mousemove', e => {
-        const r = card.getBoundingClientRect();
-        card.style.setProperty('--mx', `${e.clientX - r.left}px`);
-        card.style.setProperty('--my', `${e.clientY - r.top}px`);
-      });
-    });
-
-    // ── Magnetic button effect ──
-    document.querySelectorAll('.magnetic').forEach(btn => {
-      btn.addEventListener('mousemove', e => {
-        const r = btn.getBoundingClientRect();
-        const x = (e.clientX - r.left - r.width / 2) * 0.3;
-        const y = (e.clientY - r.top - r.height / 2) * 0.3;
-        btn.style.transform = `translate(${x}px, ${y}px)`;
-        btn.style.transition = 'transform 0.1s ease';
-      });
-      btn.addEventListener('mouseleave', () => {
-        btn.style.transform = '';
-        btn.style.transition = 'transform 0.5s cubic-bezier(0.34,1.56,0.64,1)';
-      });
-    });
-
-    // ── Active nav link highlight on scroll ──
-    const sections = document.querySelectorAll('section[id]');
-    const navLinks = document.querySelectorAll('.nav-link');
-
-    window.addEventListener('scroll', () => {
-      let current = '';
-      sections.forEach(s => {
-        if (window.scrollY >= s.offsetTop - 120) current = s.getAttribute('id');
-      });
-      navLinks.forEach(link => {
-        link.style.color = link.getAttribute('href') === '#' + current
-          ? 'var(--text)'
-          : '';
-        link.style.background = link.getAttribute('href') === '#' + current
-          ? 'var(--surface-2)'
-          : '';
-      });
-    }, { passive: true });
-
-    // ── Trigger hero reveal immediately ──
-    document.querySelectorAll('#home .reveal').forEach((el, i) => {
-      setTimeout(() => el.classList.add('visible'), 100 + i * 120);
-    });
-  </script>
+  // ===============================
+  // INITIAL HERO ANIMATION
+  // ===============================
+  $("#home .reveal").each(function (i) {
+    let el = $(this);
+    setTimeout(function () {
+      el.addClass("visible");
+    }, 100 + i * 120);
+  });
+</script>
 </body>
 
 </html>
